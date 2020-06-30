@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>output-onlinepngtools.ico</ApplicationIcon>
+    <ApplicationIcon>XMLEditor.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -114,6 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="output-onlinepngtools.ico" />
+    <Content Include="XMLEditor.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
