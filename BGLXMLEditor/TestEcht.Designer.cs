@@ -86,7 +86,6 @@
             this.Name = "TestEcht";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Systemauswahl";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TestEcht_FormClosing);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 

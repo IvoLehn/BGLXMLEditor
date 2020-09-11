@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -23,24 +26,37 @@ namespace BGLXMLEditor
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            TestEcht te = new TestEcht();
-            te.ShowDialog();
-
-            xDocument = XDocument.Load(FileName);
-
-            if (FileName.ToLower().Contains("test"))
+            if (System.Diagnostics.Process.GetProcessesByName("BGLXMLEditor").Count() <= 1)
             {
-                this.Text = "TestSystem";
+                TestEcht te = new TestEcht();
+                te.ShowDialog();
+
+                if(te.DialogResult == DialogResult.OK)
+                {
+                    xDocument = XDocument.Load(FileName);
+
+                    if (FileName.ToLower().Contains("test"))
+                    {
+                        this.Text = "TestSystem";
+                    }
+                    else
+                    {
+                        this.Text = "EchtSystem";
+                    }
+
+                    ReloadTrees(true, true);
+                }
+                else
+                {
+                    Application.Exit();
+                }
             }
             else
             {
-                this.Text = "EchtSystem";
+                MessageBox.Show($"BGL XML Editor wird bereits von einem Nutzer ausgeführt. Bitte später probieren.", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Application.Exit();
             }
-
-            ReloadTrees(true, true);
         }
-
-
 
         private bool StringIntToBool(string intValue)
         {

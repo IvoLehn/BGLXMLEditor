@@ -87,39 +87,40 @@
             // checkBoxSachb
             // 
             this.checkBoxSachb.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.checkBoxSachb, 2);
             this.checkBoxSachb.Location = new System.Drawing.Point(3, 111);
             this.checkBoxSachb.Name = "checkBoxSachb";
-            this.checkBoxSachb.Size = new System.Drawing.Size(127, 21);
+            this.checkBoxSachb.Size = new System.Drawing.Size(247, 21);
             this.checkBoxSachb.TabIndex = 4;
-            this.checkBoxSachb.Text = "Sachbearbeiter";
+            this.checkBoxSachb.Text = "Feld Sachbearbeiter freigeschaltet";
             this.checkBoxSachb.UseVisualStyleBackColor = true;
             // 
             // textBoxGroupName
             // 
-            this.textBoxGroupName.Location = new System.Drawing.Point(138, 30);
+            this.textBoxGroupName.Location = new System.Drawing.Point(151, 30);
             this.textBoxGroupName.Name = "textBoxGroupName";
-            this.textBoxGroupName.Size = new System.Drawing.Size(269, 22);
+            this.textBoxGroupName.Size = new System.Drawing.Size(549, 22);
             this.textBoxGroupName.TabIndex = 1;
             // 
             // textBoxPath
             // 
-            this.textBoxPath.Location = new System.Drawing.Point(138, 57);
+            this.textBoxPath.Location = new System.Drawing.Point(151, 57);
             this.textBoxPath.Name = "textBoxPath";
-            this.textBoxPath.Size = new System.Drawing.Size(269, 22);
+            this.textBoxPath.Size = new System.Drawing.Size(549, 22);
             this.textBoxPath.TabIndex = 2;
             // 
             // textBoxReleasePath
             // 
-            this.textBoxReleasePath.Location = new System.Drawing.Point(138, 84);
+            this.textBoxReleasePath.Location = new System.Drawing.Point(151, 84);
             this.textBoxReleasePath.Name = "textBoxReleasePath";
-            this.textBoxReleasePath.Size = new System.Drawing.Size(269, 22);
+            this.textBoxReleasePath.Size = new System.Drawing.Size(549, 22);
             this.textBoxReleasePath.TabIndex = 3;
             // 
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.17073F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66.82927F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 21.05263F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 78.94736F));
             this.tableLayoutPanel1.Controls.Add(this.labelCompany, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxSachb, 0, 4);
             this.tableLayoutPanel1.Controls.Add(this.textBoxReleasePath, 1, 3);
@@ -141,14 +142,14 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 40F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(410, 189);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(703, 189);
             this.tableLayoutPanel1.TabIndex = 9;
             // 
             // buttonAdd
             // 
             this.buttonAdd.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.buttonAdd.Location = new System.Drawing.Point(307, 138);
+            this.buttonAdd.Location = new System.Drawing.Point(600, 138);
             this.buttonAdd.Name = "buttonAdd";
             this.buttonAdd.Size = new System.Drawing.Size(100, 48);
             this.buttonAdd.TabIndex = 6;
@@ -172,20 +173,18 @@
             // 
             this.comboBoxCompany.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxCompany.FormattingEnabled = true;
-            this.comboBoxCompany.Location = new System.Drawing.Point(138, 3);
+            this.comboBoxCompany.Location = new System.Drawing.Point(151, 3);
             this.comboBoxCompany.Name = "comboBoxCompany";
-            this.comboBoxCompany.Size = new System.Drawing.Size(269, 24);
+            this.comboBoxCompany.Size = new System.Drawing.Size(549, 24);
             this.comboBoxCompany.TabIndex = 0;
             // 
             // FormGroup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(410, 189);
+            this.ClientSize = new System.Drawing.Size(703, 189);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximumSize = new System.Drawing.Size(428, 236);
-            this.MinimumSize = new System.Drawing.Size(428, 236);
             this.Name = "FormGroup";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FormGroup";

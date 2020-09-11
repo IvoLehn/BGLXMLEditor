@@ -49,7 +49,7 @@ namespace BGLXMLEditor
                 comboBoxCompany.Enabled = false;
             }
 
-            List<string> comps = XDocument.Load(Application.StartupPath + @"\test.xml").Descendants("firmen").First().Descendants("firma").Attributes("name").Select(x => x.Value).ToList();
+            List<string> comps = XDocument.Load(Form1.FileName).Descendants("firmen").First().Descendants("firma").Attributes("name").Select(x => x.Value).ToList();
 
             comboBoxCompany.DataSource = comps;
 

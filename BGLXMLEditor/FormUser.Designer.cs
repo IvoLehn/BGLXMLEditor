@@ -51,11 +51,12 @@
             // checkBoxFK
             // 
             this.checkBoxFK.AutoSize = true;
+            this.tableLayoutPanel1.SetColumnSpan(this.checkBoxFK, 2);
             this.checkBoxFK.Location = new System.Drawing.Point(3, 30);
             this.checkBoxFK.Name = "checkBoxFK";
-            this.checkBoxFK.Size = new System.Drawing.Size(118, 21);
+            this.checkBoxFK.Size = new System.Drawing.Size(149, 21);
             this.checkBoxFK.TabIndex = 1;
-            this.checkBoxFK.Text = "Führungskraft";
+            this.checkBoxFK.Text = "Freigabeberechtigt";
             this.checkBoxFK.UseVisualStyleBackColor = true;
             // 
             // textBox1
