@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Security.Principal;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -14,34 +8,57 @@ namespace BGLXMLEditor
 {
     public partial class Form1 : Form
     {
+        /* * * * * * * * * * * * * * * * * * * * * * * * * * 
+        *                                                  *
+        *                  BGLXMLEditor                    *
+        *                                                  *
+        *        Tool zum Editieren der XML-Tabellen       *   
+        *        des Programms Manuelle Fakturierung       *
+        *                                                  *
+        *                                                  *
+        *            Erstellt von: Ivo Lehnberg            *
+        *                                                  *
+        *                  Firma: VRG-IT                   *
+        *                                                  *
+        * * * * * * * * * * * * * * * * * * * * * * * * *  */
+
+
         public Form1()
         {
             InitializeComponent();
         }
-
+        
+        //------------------------------------XMLFilename-------------------------------------//
         public static string FileName { get; set; }
-        List<User> users = new List<User>();
-        List<Company> companies = new List<Company>();
+        //---------------------------------Userlist/Grouplist---------------------------------//
+        private List<User> Users { get; set; } = new List<User>();
+        private List<Company> Companies { get; set; } = new List<Company>();
+        //------------------------------------XMLDocument-------------------------------------//
         XDocument xDocument = new XDocument();
+        //------------------------------------------------------------------------------------//
 
-        private void Form1_Load(object sender, EventArgs e)
+
+        //-----------------------------------Form Events--------------------------------------//
+        private void Form1_Shown(object sender, EventArgs e)
         {
+            Application.DoEvents();
+
             if (System.Diagnostics.Process.GetProcessesByName("BGLXMLEditor").Count() <= 1)
             {
                 TestEcht te = new TestEcht();
                 te.ShowDialog();
 
-                if(te.DialogResult == DialogResult.OK)
+                if (te.DialogResult == DialogResult.OK)
                 {
                     xDocument = XDocument.Load(FileName);
 
                     if (FileName.ToLower().Contains("test"))
                     {
-                        this.Text = "TestSystem";
+                        this.Text = "Testsystem";
                     }
                     else
                     {
-                        this.Text = "EchtSystem";
+                        this.Text = "Echtsystem";
                     }
 
                     ReloadTrees(true, true);
@@ -57,46 +74,123 @@ namespace BGLXMLEditor
                 Application.Exit();
             }
         }
+        //------------------------------------------------------------------------------------//
 
-        private bool StringIntToBool(string intValue)
+
+
+        //------------------------------TreeViewEvents/Methods--------------------------------//
+        private void ReloadTrees(bool loadUser, bool loadGroup)
         {
-            if(intValue == "1")
+            xDocument = XDocument.Load(FileName);
+
+            if (loadUser)
             {
-                return true;
+                //Clear UserList
+                Users.Clear();
+
+                //Populate UserList
+                foreach (var x in xDocument.Descendants("users").First().Descendants("user"))
+                {
+                    List<Group> xEsGroups = new List<Group>();
+
+                    foreach (var g in x.Descendants("group"))
+                    {
+                        xEsGroups.Add(
+                        new Group(g.Value.ToString())
+                        );
+                    }
+
+                    bool expanded = false;
+
+                    if (treeViewUser.Nodes.Find(x.Attributes("name").First().Value, false).Any())
+                    {
+                        expanded = treeViewUser.Nodes.Find(x.Attributes("name").First().Value, false).First().IsExpanded;
+                    }
+
+                    Users.Add(
+                        new User(x.Attributes("name").First().Value, StringIntToBool(x.Attributes("FK").First().Value), xEsGroups, expanded)
+                        );
+                }
+
+                //Clear TreeViewUser
+                treeViewUser.Nodes.Clear();
+
+                //Populate TreeViewUser
+                foreach (User u in Users)
+                {
+                    var t = treeViewUser.Nodes.Add(u.Name, u.Name);
+                    foreach (Group p in u.Groups)
+                    {
+                        t.Nodes.Add(p.Name, p.Name);
+                        if (u.Expanded) t.Expand();
+                    }
+                }
             }
-            else
+
+            if (loadGroup)
             {
-                return false;
+                //Clear Company List
+                Companies.Clear();
+
+                //Populate Company List
+                foreach (var x in xDocument.Descendants("firmen").First().Descendants("firma"))
+                {
+                    List<Group> xEsGroups = new List<Group>();
+
+                    foreach (var g in x.Descendants("group"))
+                    {
+                        xEsGroups.Add(
+                        new Group(g.Attributes("name").First().Value, g.Attributes("pfad").First().Value, StringIntToBool(g.Attributes("sachb").First().Value), g.Attributes("freigabepfad").First().Value, int.Parse(x.Attributes("nummer").First().Value))
+                        );
+                    }
+
+                    bool expanded = false;
+
+                    if (treeViewCompany.Nodes.Find(x.Attributes("nummer").First().Value, false).Any())
+                    {
+                        expanded = treeViewCompany.Nodes.Find(x.Attributes("nummer").First().Value, false).First().IsExpanded;
+                    }
+
+                    Companies.Add(
+                        new Company(x.Attributes("name").First().Value, int.Parse(x.Attributes("nummer").First().Value), xEsGroups, expanded)
+                        );
+                }
+
+                //Clear TreeViewCompany
+                treeViewCompany.Nodes.Clear();
+
+                //Populate TreeViewCompany
+                foreach (Company c in Companies)
+                {
+                    var t = treeViewCompany.Nodes.Add(c.Number.ToString(), c.Name);
+
+                    foreach (Group p in c.Groups)
+                    {
+                        t.Nodes.Add(p.Name, p.Name);
+                        if (c.Expanded) t.Expand();
+                    }
+                }
+
             }
         }
+        private void treeViewCompanyAndUser_AfterExpand(object sender, TreeViewEventArgs e)
+        {
+            (sender as TreeView).SelectedNode = e.Node;
+        }
+        //------------------------------------------------------------------------------------//
 
+
+
+        //--------------------------------UserButtonMethods-----------------------------------//
         private void buttonAddUser_Click(object sender, EventArgs e)
         {
             FormUser fUser = new FormUser(string.Empty, false);
             fUser.ShowDialog();
             ReloadTrees(true, false);
         }
-
-        private void buttonEditUser_Click(object sender, EventArgs e)
-        {
-            if(treeViewUser.SelectedNode != null && treeViewUser.SelectedNode.Level == 0)
-            {
-                string name = treeViewUser.SelectedNode.Name;
-                bool fk = users.Where(x => x.Name == name).First().FK;
-
-                FormUser fUser = new FormUser(name, fk);
-                fUser.ShowDialog();
-                ReloadTrees(true, false);
-            }
-            else
-            {
-                MessageBox.Show("Bitte Benutzer auswählen", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-        }
-
         private void buttonRemoveUser_Click(object sender, EventArgs e)
         {
-            if(treeViewUser.SelectedNode != null && treeViewUser.SelectedNode.Level == 0)
+            if (treeViewUser.SelectedNode != null && treeViewUser.SelectedNode.Level == 0)
             {
                 string name = treeViewUser.SelectedNode.Name;
                 XElement xel = xDocument.Descendants("users").First().Descendants("user").Where(x => x.Attribute("name").Value == name).First();
@@ -109,93 +203,33 @@ namespace BGLXMLEditor
                 MessageBox.Show("Bitte Benutzer auswählen", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
-        private void ReloadTrees(bool user, bool group)
+        private void buttonEditUser_Click(object sender, EventArgs e)
         {
-            xDocument = XDocument.Load(FileName);
-
-            if(user)
+            if(treeViewUser.SelectedNode != null && treeViewUser.SelectedNode.Level == 0)
             {
-                treeViewUser.Nodes.Clear();
-                users.Clear();
+                string name = treeViewUser.SelectedNode.Name;
+                bool fk = Users.Where(x => x.Name == name).First().FK;
 
-                foreach (var x in xDocument.Descendants("users").First().Descendants("user"))
-                {
-                    List<Group> xEsGroups = new List<Group>();
-
-                    foreach (var g in x.Descendants("group"))
-                    {
-                        xEsGroups.Add(
-                        new Group(g.Value.ToString())
-                        );
-                    }
-
-
-                    users.Add(
-                        new User(x.Attributes("name").First().Value, StringIntToBool(x.Attributes("FK").First().Value), xEsGroups)
-                        );
-                }
-
-
-                foreach (User u in users)
-                {
-                    var t = treeViewUser.Nodes.Add(u.Name, u.Name);
-                    foreach (Group p in u.Groups)
-                    {
-                        t.Nodes.Add(p.Name, p.Name);
-                    }
-                }
+                FormUser fUser = new FormUser(name, fk);
+                fUser.ShowDialog();
+                ReloadTrees(true, false);
             }
-
-            if(group)
+            else
             {
-                treeViewCompany.Nodes.Clear();
-                companies.Clear();
-
-                foreach (var x in xDocument.Descendants("firmen").First().Descendants("firma"))
-                {
-                    List<Group> xEsGroups = new List<Group>();
-
-                    foreach (var g in x.Descendants("group"))
-                    {
-                        xEsGroups.Add(
-                        new Group(g.Attributes("name").First().Value, g.Attributes("pfad").First().Value, StringIntToBool(g.Attributes("sachb").First().Value), g.Attributes("freigabepfad").First().Value, int.Parse(x.Attributes("nummer").First().Value))
-                        );
-                    }
-
-                    companies.Add(
-                        new Company(x.Attributes("name").First().Value, int.Parse(x.Attributes("nummer").First().Value), xEsGroups)
-                        );
-                }
-
-                foreach (Company c in companies)
-                {
-                    var t = treeViewCompany.Nodes.Add(c.Number.ToString(), c.Name);
-
-                    foreach (Group p in c.Groups)
-                    {
-                        t.Nodes.Add(p.Name, p.Name);
-                    }
-                }
-
+                MessageBox.Show("Bitte Benutzer auswählen", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
+        //------------------------------------------------------------------------------------//
 
+
+
+        //--------------------------------GroupButtonMethods----------------------------------//
+        private void buttonAddGroup_Click(object sender, EventArgs e)
+        {
+            FormGroup fGroup = new FormGroup();
+            fGroup.ShowDialog();
+            ReloadTrees(false, true);
+        }
         private void buttonRemoveGroup_Click(object sender, EventArgs e)
         {
             if(treeViewCompany.SelectedNode != null && treeViewCompany.SelectedNode.Level == 1)
@@ -211,7 +245,6 @@ namespace BGLXMLEditor
                 MessageBox.Show("Bitte Gruppe auswählen", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
         private void buttonEditGroup_Click(object sender, EventArgs e)
         {
             if(treeViewCompany.SelectedNode != null && treeViewCompany.SelectedNode.Level == 1)
@@ -227,25 +260,38 @@ namespace BGLXMLEditor
                 MessageBox.Show("Bitte Gruppe auswählen", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+        //------------------------------------------------------------------------------------//
 
-        private void buttonAddGroup_Click(object sender, EventArgs e)
-        {
-            FormGroup fGroup = new FormGroup();
-            fGroup.ShowDialog();
-            ReloadTrees(false, true);
-        }
 
+
+        //-----------------------------Assing/RemoveGroupMethods------------------------------//
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            if(treeViewCompany.SelectedNode != null && treeViewCompany.SelectedNode.Level == 1 && treeViewUser.SelectedNode != null && treeViewUser.SelectedNode.Level == 0)
+            if(treeViewCompany.SelectedNode != null && treeViewCompany.SelectedNode.Level == 1 && treeViewUser.SelectedNode != null)
             {
+                if (treeViewUser.SelectedNode.Level == 1) treeViewUser.SelectedNode = treeViewUser.SelectedNode.Parent;
+
+                string selectedUserString = treeViewUser.SelectedNode.Name;
+                string selectedGroupString = treeViewCompany.SelectedNode.Name;
+
                 XElement selectedGroup = xDocument.Descendants("firmen").First().Descendants("firma").Where(x => x.Attribute("name").Value == treeViewCompany.SelectedNode.Parent.Text).First().Descendants("group").Where(x => x.Attribute("name").Value == treeViewCompany.SelectedNode.Name).First();
                 XElement selectedUser = xDocument.Descendants("users").First().Descendants("user").Where(x => x.Attribute("name").Value == treeViewUser.SelectedNode.Name).First();
 
-                selectedUser.Add(new XElement("group", "") { Value = selectedGroup.Attribute("name").Value });
+                if(!selectedUser.Elements("group").Where(x => x.Value == selectedGroupString).Any())
+                {
+                    selectedUser.Add(new XElement("group", "") { Value = selectedGroup.Attribute("name").Value });
 
-                xDocument.Save(FileName);
-                ReloadTrees(true, false);
+                    xDocument.Save(FileName);
+                    ReloadTrees(true, false);
+
+                    TreeNode node = treeViewUser.Nodes.Find(selectedUserString, false).First();
+                    node.Expand();
+                    treeViewUser.SelectedNode = node;
+                }
+                else
+                {
+                    MessageBox.Show($"{selectedUserString} besitzt bereits die Gruppe {selectedGroupString}", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             else
             {
@@ -253,7 +299,6 @@ namespace BGLXMLEditor
             }
 
         }
-
         private void buttonRemove_Click(object sender, EventArgs e)
         {
             if (treeViewUser.SelectedNode != null && treeViewUser.SelectedNode.Level == 1)
@@ -269,5 +314,22 @@ namespace BGLXMLEditor
                 MessageBox.Show("Bitte links Gruppe eines Benutzers auswählen", "Achtung", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+        //------------------------------------------------------------------------------------//
+
+
+
+        //--------------------------------Auxillary Methods-----------------------------------//
+        private bool StringIntToBool(string intValue)
+        {
+            if (intValue == "1")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        //------------------------------------------------------------------------------------//
     }
 }

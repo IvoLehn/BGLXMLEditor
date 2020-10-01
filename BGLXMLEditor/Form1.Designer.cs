@@ -45,23 +45,31 @@
             // 
             // treeViewUser
             // 
+            this.treeViewUser.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.tableLayoutPanel1.SetColumnSpan(this.treeViewUser, 3);
             this.treeViewUser.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeViewUser.ForeColor = System.Drawing.Color.White;
+            this.treeViewUser.HideSelection = false;
             this.treeViewUser.Location = new System.Drawing.Point(3, 53);
             this.treeViewUser.Name = "treeViewUser";
             this.tableLayoutPanel1.SetRowSpan(this.treeViewUser, 4);
             this.treeViewUser.Size = new System.Drawing.Size(378, 548);
             this.treeViewUser.TabIndex = 6;
+            this.treeViewUser.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeViewCompanyAndUser_AfterExpand);
             // 
             // treeViewCompany
             // 
+            this.treeViewCompany.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.tableLayoutPanel1.SetColumnSpan(this.treeViewCompany, 3);
             this.treeViewCompany.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeViewCompany.ForeColor = System.Drawing.Color.White;
+            this.treeViewCompany.HideSelection = false;
             this.treeViewCompany.Location = new System.Drawing.Point(515, 53);
             this.treeViewCompany.Name = "treeViewCompany";
             this.tableLayoutPanel1.SetRowSpan(this.treeViewCompany, 4);
             this.treeViewCompany.Size = new System.Drawing.Size(382, 548);
             this.treeViewCompany.TabIndex = 9;
+            this.treeViewCompany.AfterExpand += new System.Windows.Forms.TreeViewEventHandler(this.treeViewCompanyAndUser_AfterExpand);
             // 
             // buttonAddUser
             // 
@@ -197,7 +205,7 @@
             this.Name = "Form1";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "BGL XML-Editor";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Shown += new System.EventHandler(this.Form1_Shown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
