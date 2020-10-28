@@ -11,9 +11,13 @@ namespace BGLXMLEditor
     {
         public string Path { get; set; }
         public string ReleasePath { get; set; }
-        public string GroupName { get; set; }
+        public string GroupName { get; set; } = string.Empty;
         public string Company { get; set; }
         public bool SachB { get; set; }
+
+        public string NewGroupName { get; set; }
+        public string CompanyWhichGotNewGroup { get; set; }
+
 
         public FormGroup(string name, string path, string rPath, string comp, bool sachB)
         {
@@ -25,8 +29,9 @@ namespace BGLXMLEditor
             InitializeComponent();
         }
 
-        public FormGroup()
+        public FormGroup(string comp)
         {
+            this.Company = comp;
             InitializeComponent();
         }
 
@@ -41,6 +46,7 @@ namespace BGLXMLEditor
             {
                 buttonAdd.Text = "Hinzufügen";
                 this.Text = "Gruppe hinzufügen";
+                if (!string.IsNullOrEmpty(GroupName)) comboBoxCompany.SelectedIndex = comboBoxCompany.FindStringExact(GroupName);
             }
             else
             {
@@ -71,26 +77,44 @@ namespace BGLXMLEditor
         private void buttonAdd_Click(object sender, EventArgs e)
         {
             XDocument doc = XDocument.Load(Form1.FileName);
-
-            if(string.IsNullOrEmpty(this.GroupName))
+            if (!doc.Descendants("firmen").First().Descendants("firma").Where(x => x.Attribute("name").Value == comboBoxCompany.Text).First().Descendants("group").Select(x => x.Attribute("name").Value).ToList().ConvertAll(x => x.ToLower()).Contains(textBoxGroupName.Text.ToLower()) || textBoxGroupName.Text.ToLower() == GroupName.ToLower())
             {
-                if (!string.IsNullOrEmpty(comboBoxCompany.Text))
+                if (!string.IsNullOrEmpty(textBoxGroupName.Text))
                 {
-                    doc.Descendants("firmen").First().Descendants("firma").Where(x => x.Attribute("name").Value == comboBoxCompany.Text).First().Add(new XElement("group", "", new XAttribute[] { new XAttribute("name", textBoxGroupName.Text), new XAttribute("pfad", textBoxPath.Text), new XAttribute("freigabepfad", textBoxReleasePath.Text), new XAttribute("sachb", StringBoolToInt(checkBoxSachb.Checked)) }));
+                    if (string.IsNullOrEmpty(this.GroupName))
+                    {
+                        if (!string.IsNullOrEmpty(comboBoxCompany.Text))
+                        {
+                            doc.Descendants("firmen").First().Descendants("firma").Where(x => x.Attribute("name").Value == comboBoxCompany.Text).First().Add(new XElement("group", "", new XAttribute[] { new XAttribute("name", textBoxGroupName.Text), new XAttribute("pfad", textBoxPath.Text), new XAttribute("freigabepfad", textBoxReleasePath.Text), new XAttribute("sachb", StringBoolToInt(checkBoxSachb.Checked)) }));
+                        }
+                    }
+                    else
+                    {
+                        XElement xElement = doc.Descendants("firmen").First().Descendants("firma").Where(x => x.Attribute("name").Value == Company).First().Descendants("group").Where(x => x.Attribute("name").Value == this.GroupName).First();
+
+                        xElement.Attribute("name").Value = textBoxGroupName.Text;
+                        xElement.Attribute("pfad").Value = textBoxPath.Text;
+                        xElement.Attribute("freigabepfad").Value = textBoxReleasePath.Text;
+                        xElement.Attribute("sachb").Value = StringBoolToInt(checkBoxSachb.Checked).ToString();
+                    }
+
+                    NewGroupName = textBoxGroupName.Text;
+                    CompanyWhichGotNewGroup = comboBoxCompany.Text;
+
+                    doc.Save(Form1.FileName);
+
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("Bitte einen Gruppennamen angeben", "Gruppenname ungültig", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             else
             {
-                XElement xElement = doc.Descendants("firmen").First().Descendants("firma").Where(x => x.Attribute("name").Value == Company).First().Descendants("group").Where(x => x.Attribute("name").Value == this.GroupName).First();
-
-                xElement.Attribute("name").Value = textBoxGroupName.Text;
-                xElement.Attribute("pfad").Value = textBoxPath.Text;
-                xElement.Attribute("freigabepfad").Value = textBoxReleasePath.Text;
-                xElement.Attribute("sachb").Value = StringBoolToInt(checkBoxSachb.Checked).ToString();
+                MessageBox.Show($"Eine Gruppe mit dem Namen \"{textBoxGroupName.Text}\" existiert bereits", "Gruppenname vergeben", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-
-            doc.Save(Form1.FileName);
-            this.Close();
         }
 
         private int StringBoolToInt(bool value)

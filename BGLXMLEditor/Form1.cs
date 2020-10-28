@@ -21,13 +21,15 @@ namespace BGLXMLEditor
         *                  Firma: VRG-IT                   *
         *                                                  *
         * * * * * * * * * * * * * * * * * * * * * * * * *  */
-
-
+        
+        
         public Form1()
         {
             InitializeComponent();
         }
-        
+
+        //--------------------------------------Version---------------------------------------//
+        public string Version { get; set; } = "Version: 1.0.0.2";
         //------------------------------------XMLFilename-------------------------------------//
         public static string FileName { get; set; }
         //---------------------------------Userlist/Grouplist---------------------------------//
@@ -41,6 +43,8 @@ namespace BGLXMLEditor
         //-----------------------------------Form Events--------------------------------------//
         private void Form1_Shown(object sender, EventArgs e)
         {
+            labelVersion.Text = Version;
+
             Application.DoEvents();
 
             if (System.Diagnostics.Process.GetProcessesByName("BGLXMLEditor").Count() <= 1)
@@ -54,11 +58,11 @@ namespace BGLXMLEditor
 
                     if (FileName.ToLower().Contains("test"))
                     {
-                        this.Text = "Testsystem";
+                        this.Text = "BGLXML-Editor (Testsystem)";
                     }
                     else
                     {
-                        this.Text = "Echtsystem";
+                        this.Text = "BGLXML-Editor (Echtsystem)";
                     }
 
                     ReloadTrees(true, true);
@@ -187,6 +191,12 @@ namespace BGLXMLEditor
             FormUser fUser = new FormUser(string.Empty, false);
             fUser.ShowDialog();
             ReloadTrees(true, false);
+
+            if(fUser.DialogResult == DialogResult.OK)
+            {
+                TreeNode node = treeViewUser.Nodes.Find(fUser.NewUserName, false).First();
+                treeViewUser.SelectedNode = node;
+            }
         }
         private void buttonRemoveUser_Click(object sender, EventArgs e)
         {
@@ -213,6 +223,13 @@ namespace BGLXMLEditor
                 FormUser fUser = new FormUser(name, fk);
                 fUser.ShowDialog();
                 ReloadTrees(true, false);
+
+                if (fUser.DialogResult == DialogResult.OK)
+                {
+                    TreeNode node = treeViewUser.Nodes.Find(fUser.NewUserName, false).First();
+                    treeViewUser.SelectedNode = node;
+                    if (node.Nodes.Count > 0) node.Expand();
+                }   
             }
             else
             {
@@ -226,9 +243,30 @@ namespace BGLXMLEditor
         //--------------------------------GroupButtonMethods----------------------------------//
         private void buttonAddGroup_Click(object sender, EventArgs e)
         {
-            FormGroup fGroup = new FormGroup();
+            string selectedComp = string.Empty;
+
+            if(treeViewCompany.SelectedNode != null)
+            {
+                if(treeViewCompany.SelectedNode.Level == 0)
+                {
+                    selectedComp = treeViewCompany.SelectedNode.Text;
+                }
+                else
+                {
+                    selectedComp = treeViewCompany.SelectedNode.Parent.Text;
+                }
+            }
+
+            FormGroup fGroup = new FormGroup(selectedComp);
             fGroup.ShowDialog();
             ReloadTrees(false, true);
+
+            if (fGroup.DialogResult == DialogResult.OK)
+            {
+                TreeNode node = treeViewCompany.Nodes.Cast<TreeNode>().Where(x => x.Text == fGroup.CompanyWhichGotNewGroup).First().Nodes.Find(fGroup.NewGroupName, false).First();
+                node.Parent.Expand();
+                treeViewCompany.SelectedNode = node;
+            }
         }
         private void buttonRemoveGroup_Click(object sender, EventArgs e)
         {
@@ -254,6 +292,12 @@ namespace BGLXMLEditor
                 FormGroup fGroup = new FormGroup(xel.Attribute("name").Value, xel.Attribute("pfad").Value, xel.Attribute("freigabepfad").Value, xel.Parent.Attribute("name").Value, StringIntToBool(xel.Attribute("sachb").Value));
                 fGroup.ShowDialog();
                 ReloadTrees(false, true);
+
+                if(fGroup.DialogResult == DialogResult.OK)
+                {
+                    TreeNode node = treeViewCompany.Nodes.Cast<TreeNode>().Where(x => x.Text == fGroup.CompanyWhichGotNewGroup).First().Nodes.Find(fGroup.NewGroupName, false).First();
+                    treeViewCompany.SelectedNode = node;
+                }
             }
             else
             {
@@ -329,6 +373,10 @@ namespace BGLXMLEditor
             {
                 return false;
             }
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
         //------------------------------------------------------------------------------------//
     }
